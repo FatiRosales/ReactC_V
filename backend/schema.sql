@@ -1,9 +1,8 @@
--- Esquema: Sistema de Compra/Venta de Acciones con Portafolios
--- Ejecutar como: psql -U mfgrgs -d stock_app -h localhost -p 8031 -f schema.sql
+
 
 -- Catálogo interno de acciones con precio fijo (lo que ves en "Cotizar")
 CREATE TABLE IF NOT EXISTS catalogo (
-    id SERIAL PRIMARY KEY,
+    iid SERIAL PRIMARY KEY,
     simbolo VARCHAR(10) UNIQUE NOT NULL,
     nombre VARCHAR(120) NOT NULL,
     precio NUMERIC(18,4) NOT NULL CHECK (precio >= 0),
@@ -36,12 +35,6 @@ ALTER TABLE transacciones ADD COLUMN IF NOT EXISTS ganancia_perdida NUMERIC(18,4
 
 CREATE INDEX IF NOT EXISTS idx_transacciones_portafolio ON transacciones(portafolio_id);
 CREATE INDEX IF NOT EXISTS idx_transacciones_simbolo ON transacciones(simbolo);
-
--- Catálogo de ejemplo para empezar a probar de inmediato
-INSERT INTO catalogo (simbolo, nombre, precio) VALUES
-    ('AAPL', 'Apple Inc.', 195.50),
-    ('TSLA', 'Tesla Inc.', 248.30),
-    ('IBM', 'IBM Corp.', 178.20),
     ('META', 'Meta Platforms', 312.10)
 ON CONFLICT (simbolo) DO NOTHING;
 
