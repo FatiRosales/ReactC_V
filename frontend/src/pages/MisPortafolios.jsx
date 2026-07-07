@@ -12,6 +12,13 @@ export default function MisPortafolios() {
       .catch(() => setEstado("error"));
   }, []);
 
+  async function eliminar(e, id) {
+    e.preventDefault();
+    if (!confirm("¿Eliminar este portafolio y todas sus operaciones?")) return;
+    await api.eliminarPortafolio(id);
+    setPortafolios((prev) => prev.filter((p) => p.id !== id));
+  }
+
   const totalGeneral = portafolios.reduce((acc, p) => acc + Number(p.ganancia_perdida), 0);
 
   return (
@@ -34,7 +41,7 @@ export default function MisPortafolios() {
 
       {estado === "cargando" && <p className="lead-muted">Cargando portafolios…</p>}
       {estado === "error" && (
-        <div className="alert-bar danger">No se pudo conectar con la API. Revisa que el backend esté corriendo en el puerto 4000.</div>
+        <div className="alert-bar danger">No se pudo conectar con la API.</div>
       )}
       {estado === "listo" && portafolios.length === 0 && (
         <div className="alert-bar warning">Todavía no tienes portafolios. Crea el primero para empezar a operar.</div>
@@ -58,6 +65,12 @@ export default function MisPortafolios() {
                   <div className="portfolio-card-date">Creado el {new Date(p.fecha_creacion).toLocaleDateString()}</div>
                 </div>
               </Link>
+              <button
+                className="btn-delete-card"
+                onClick={(e) => eliminar(e, p.id)}
+                title="Eliminar portafolio">
+                ✕ Eliminar portafolio
+              </button>
             </div>
           );
         })}
