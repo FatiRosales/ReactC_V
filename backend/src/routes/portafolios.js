@@ -8,8 +8,7 @@ router.get("/", async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT p.id, p.nombre, p.fecha_creacion,
-        COALESCE(SUM(CASE WHEN t.tipo = 'venta' THEN t.cantidad * t.precio ELSE 0 END), 0)
-        - COALESCE(SUM(CASE WHEN t.tipo = 'compra' THEN t.cantidad * t.precio ELSE 0 END), 0) AS ganancia_perdida
+      COALESCE(SUM(CASE WHEN t.tipo = 'venta' THEN t.ganancia_perdida ELSE 0 END), 0) AS ganancia_perdida
       FROM portafolios p
       LEFT JOIN transacciones t ON t.portafolio_id = p.id
       GROUP BY p.id
@@ -98,6 +97,16 @@ router.put("/:id", async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ error: "Portafolio no encontrado." });
     res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/portafolios/:id
+router.delete("/:id", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM portafolios WHERE id = $1", [req.params.id]);
+    res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
