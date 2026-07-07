@@ -12,6 +12,7 @@ async function request(path, options = {}) {
 
 export const api = {
   // Catálogo (pantalla "Cotizar") — acciones disponibles con precio fijo
+buscarSimbolo: (simbolo) => request(`/catalogo/buscar/${simbolo}`),
   listarCatalogo: () => request("/catalogo"),
   crearEnCatalogo: (payload) =>
     request("/catalogo", { method: "POST", body: JSON.stringify(payload) }),
@@ -29,4 +30,10 @@ export const api = {
     request("/acciones/comprar", { method: "POST", body: JSON.stringify(payload) }),
   vender: (payload) =>
     request("/acciones/vender", { method: "POST", body: JSON.stringify(payload) }),
+//OPERACIONES DE ELIMINAR PORTAFOLIO Y PRODUCTOS
+eliminarPortafolio: (id) =>
+  request(`/portafolios/${id}`, { method: "DELETE" }),
+
+eliminarProducto: (id) =>
+  request(`/catalogo/${id}`, { method: "DELETE" }),
 };
