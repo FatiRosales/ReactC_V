@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { api } from "../api.js";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Comprar() {
   const [portafolios, setPortafolios] = useState([]);
@@ -10,14 +10,14 @@ export default function Comprar() {
   const [cantidad, setCantidad] = useState(1);
   const [mensaje, setMensaje] = useState(null);
   const [cargando, setCargando] = useState(false);
+const navigate = useNavigate();
 
   useEffect(() => {
     api.listarPortafolios().then(setPortafolios).catch(() => {});
     api.listarCatalogo().then(setCatalogo).catch(() => {});
   }, []);
 
-  const seleccionada = catalogo.find((c) => String(c.id) === String(catalogoId));
-  const total = seleccionada ? Number(seleccionada.precio) * Number(cantidad || 0) : 0;
+const seleccionada = catalogo.find((c) => String(c.id) === String(catalogoId));
 
   async function comprar(e) {
     e.preventDefault();
@@ -37,6 +37,7 @@ export default function Comprar() {
         tipo: "success",
         texto: `Compra registrada: ${data.cantidad} ${seleccionada.simbolo} a $${Number(data.precio).toFixed(2)} c/u. Se guardó en el portafolio.`,
       });
+setTimeout(() => navigate(`/portafolios/${portafolioId}`), 1500);
     } catch (err) {
       setMensaje({ tipo: "danger", texto: err.message });
     } finally {
@@ -85,12 +86,6 @@ export default function Comprar() {
                   value={cantidad} onChange={(e) => setCantidad(e.target.value)} />
               </div>
 
-              {seleccionada && (
-                <div className="summary-box">
-                  <div><span>Precio fijo</span><strong>${Number(seleccionada.precio).toFixed(2)}</strong></div>
-                  <div><span>Total a invertir</span><strong className="num-gold">${total.toFixed(2)}</strong></div>
-                </div>
-              )}
 
               {mensaje && <div className={`alert-bar ${mensaje.tipo}`}>{mensaje.texto}</div>}
 
