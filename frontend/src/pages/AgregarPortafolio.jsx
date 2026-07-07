@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { api } from "../api.js";
 
 export default function AgregarPortafolio() {
@@ -17,8 +17,12 @@ export default function AgregarPortafolio() {
     setGuardando(true);
     setError("");
     try {
-      await api.crearPortafolio(nombre.trim());
-      navigate("/");
+      const data = await api.crearPortafolio(nombre.trim());
+      if (data && data.id) {
+        navigate(`/portafolios/${data.id}`);
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -47,6 +51,9 @@ export default function AgregarPortafolio() {
               <button className="btn-action btn-gold w-100" disabled={guardando}>
                 {guardando ? "Guardando…" : "Guardar"}
               </button>
+              <div className="mt-3 text-center">
+                <Link className="btn-link-action" to="/">← Ver mis portafolios</Link>
+              </div>
             </form>
           </div>
         </div>
