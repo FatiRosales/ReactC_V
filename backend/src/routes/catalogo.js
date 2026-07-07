@@ -47,5 +47,37 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// GET /api/catalogo/buscar/:simbolo
+// Consulta marketdata.app y devuelve nombre y precio actual del símbolo
+router.get("/buscar/:simbolo", async (req, res) => {
+  const simbolo = req.params.simbolo.toUpperCase();
+  try {
+const url = `https://api.marketdata.app/v1/stocks/quotes/?symbols=${simbolo}`;
+const headers = process.env.MARKETDATA_API_KEY
+  ? { Authorization: `Bearer ${process.env.MARKETDATA_API_KEY}` }
+  : {};
+const respuesta = await fetch(url, { headers });
+const data = await respuesta.json();
+    if (data.s !== "ok" || !data.symbol || data.symbol.length === 0) {
+      return res.status(404).json({ error: `No se encontró el símbolo ${simbolo}.` });
+    }
+
+    res.json({
+      simbolo: data.symbol[0],
+      precio: data.last?.[0] ?? data.mid?.[0] ?? data.ask?.[0] ?? 0,
+    });
+  } catch (err) {
+    res.status(502).json({ error: "No se pudo consultar la API de precios." });
+  }
+});
+// DELETE /api/catalogo/:id
+router.delete("/:id", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM catalogo WHERE id = $1", [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;
