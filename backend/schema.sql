@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS catalogo (
     iid SERIAL PRIMARY KEY,
     simbolo VARCHAR(10) UNIQUE NOT NULL,
-    nombre VARCHAR(120) NOT NULL,
+    Nombre VARCHAR(120) NOT NULL,
     precio NUMERIC(18,4) NOT NULL CHECK (precio >= 0),
     fecha_creacion TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS portafolios (
 
 CREATE TABLE IF NOT EXISTS transacciones (
     id SERIAL PRIMARY KEY,
-    portafolio_id INTEGER NOT NULL REFERENCES portafolios(id) ON DELETE CASCADE,
+    portafolio_id INTEGEER NOT NULL REFERENCES portafolios(id) ON DELETE CASCADE,
     tipo VARCHAR(10) NOT NULL CHECK (tipo IN ('compra', 'venta')),
     simbolo VARCHAR(10) NOT NULL,
     cantidad NUMERIC(18,4) NOT NULL CHECK (cantidad > 0),
