@@ -11,6 +11,9 @@ export default function Cotizar() {
   const [precio, setPrecio] = useState("");
   const [guardando, setGuardando] = useState(false);
 
+
+const [buscando, setBuscando] = useState(false);
+
   const [editId, setEditId] = useState(null);
   const [editPrecio, setEditPrecio] = useState("");
 
@@ -21,6 +24,23 @@ export default function Cotizar() {
   }
 
   useEffect(cargar, []);
+
+async function buscarEnAPI() {
+  if (!simbolo.trim()) return;
+  setBuscando(true);
+  setMensaje(null);
+  try {
+    const data = await api.buscarSimbolo(simbolo.trim());
+    setNombre(data.simbolo); // la API no devuelve nombre, usa el símbolo como placeholder
+    setPrecio(data.precio.toFixed(2));
+    setMensaje({ tipo: "success", texto: `Precio obtenido de la API: $${data.precio.toFixed(2)}` });
+  } catch (err) {
+    setMensaje({ tipo: "danger", texto: err.message });
+  } finally {
+    setBuscando(false);
+  }
+}
+
 
   async function agregar(e) {
     e.preventDefault();
@@ -57,6 +77,13 @@ export default function Cotizar() {
     }
   }
 
+async function eliminarProducto(id) {
+  if (!confirm("¿Eliminar esta acción del catálogo?")) return;
+  await api.eliminarProducto(id);
+  cargar();
+}
+
+
   return (
     <div>
       <div className="page-head">
@@ -70,11 +97,20 @@ export default function Cotizar() {
           <div className="panel">
             <h6 className="panel-title">Agregar acción</h6>
             <form onSubmit={agregar}>
-              <div className="mb-3">
-                <label className="field-label">Símbolo</label>
-                <input className="form-control field-input" placeholder="Ej. NVDA"
-                  value={simbolo} onChange={(e) => setSimbolo(e.target.value.toUpperCase())} />
-              </div>
+
+
+<div className="mb-3">
+  <label className="field-label">Símbolo</label>
+  <div className="d-flex gap-2">
+    <input className="form-control field-input" placeholder="Ej. NVDA"
+      value={simbolo} onChange={(e) => setSimbolo(e.target.value.toUpperCase())} />
+    <button type="button" className="btn-action btn-gold"
+      onClick={buscarEnAPI} disabled={buscando || !simbolo.trim()}>
+      {buscando ? "…" : "Buscar"}
+    </button>
+  </div>
+</div>
+
               <div className="mb-3">
                 <label className="field-label">Nombre</label>
                 <input className="form-control field-input" placeholder="Ej. NVIDIA Corp."
@@ -122,8 +158,12 @@ export default function Cotizar() {
                       {editId === item.id ? (
                         <button className="btn-link-action" onClick={() => guardarPrecio(item.id)}>Guardar</button>
                       ) : (
-                        <button className="btn-link-action" onClick={() => comenzarEdicion(item)}>Editar precio</button>
-                      )}
+                       
+
+<div className="d-flex gap-2 justify-content-end">
+    <button className="btn-link-action" onClick={() => comenzarEdicion(item)}>Editar precio</button>
+    <button className="btn-link-action text-danger" onClick={() => eliminarProducto(item.id)}>Eliminar</button>
+  </div>                      )}
                     </td>
                   </tr>
                 ))}
